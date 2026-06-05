@@ -1,0 +1,29 @@
+# Docker ignore – exclude files from Docker build context
+
+# Version control
+.git/
+.gitignore
+
+# Development artifacts
+node_modules/
+npm-debug.log*
+*.log
+
+# Environment files (pass via --env-file at runtime)
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# PM2
+ecosystem.config.js
+.pm2/
+
+# Docs
+README.md
+*.md

@@ -1,0 +1,43 @@
+# ── Node & npm ────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# ── Environment secrets ───────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Logs ─────────────────────────────────────────────────────
+backend/logs/*.log
+logs/
+*.log
+
+# ── OS artifacts ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor / IDE ──────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Build artifacts ───────────────────────────────────────────
+dist/
+build/
+.cache/
+
+# ── PM2 ──────────────────────────────────────────────────────
+.pm2/
+
+# ── Docker ───────────────────────────────────────────────────
+*.pid
+
+# ── Temporary download files ──────────────────────────────────
+*.part
+*.tmp
