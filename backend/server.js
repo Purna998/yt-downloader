@@ -171,61 +171,66 @@ app.use((err, req, res, next) => {
   }
 });
 
-// ── Start server ──────────────────────────────────────────────
-const server = app.listen(PORT, () => {
-  const env   = process.env.NODE_ENV || 'development';
-  const isProd = env === 'production';
+// ── Start server (local only — Vercel uses module.exports below) ─
+if (require.main === module) {
+  const server = app.listen(PORT, () => {
+    const env    = process.env.NODE_ENV || 'development';
+    const isProd = env === 'production';
 
-  console.log(`\n${'─'.repeat(55)}`);
-  console.log(`  🚀 YTGrab v2.0  |  ${isProd ? '🏭 PRODUCTION' : '🔧 DEVELOPMENT'}`);
-  console.log(`${'─'.repeat(55)}`);
-  console.log(`  📡 URL      : http://localhost:${PORT}`);
-  console.log(`  📁 Frontend : ${FRONTEND_DIR}`);
-  console.log(`  🔒 Security : helmet + rate-limit (${RATE_MAX} req/${RATE_WIN}min)`);
-  console.log(`  🗜️  Compress : gzip enabled (threshold 1KB)`);
-  console.log(`  📋 Logging  : ${LOG_FORMAT}`);
-  console.log(`  🌐 CORS     : ${allowedOrigins.join(', ')}`);
-  console.log(`${'─'.repeat(55)}\n`);
+    console.log(`\n${'─'.repeat(55)}`);
+    console.log(`  \uD83D\uDE80 YTGrab v2.0  |  ${isProd ? '\uD83C\uDFED PRODUCTION' : '\uD83D\uDD27 DEVELOPMENT'}`);
+    console.log(`${'─'.repeat(55)}`);
+    console.log(`  \uD83D\uDCE1 URL      : http://localhost:${PORT}`);
+    console.log(`  \uD83D\uDCC1 Frontend : ${FRONTEND_DIR}`);
+    console.log(`  \uD83D\uDD12 Security : helmet + rate-limit (${RATE_MAX} req/${RATE_WIN}min)`);
+    console.log(`  \uD83D\uDDDC\uFE0F  Compress : gzip enabled (threshold 1KB)`);
+    console.log(`  \uD83D\uDCCB Logging  : ${LOG_FORMAT}`);
+    console.log(`  \uD83C\uDF10 CORS     : ${allowedOrigins.join(', ')}`);
+    console.log(`${'─'.repeat(55)}\n`);
 
-  // Signal PM2 that the app is ready (wait_ready: true)
-  if (process.send) process.send('ready');
-});
-
-// ── Graceful Shutdown ─────────────────────────────────────────
-let shuttingDown = false;
-
-function gracefulShutdown(signal) {
-  if (shuttingDown) return;
-  shuttingDown = true;
-  console.log(`\n[${signal}] Graceful shutdown initiated…`);
-
-  server.close(err => {
-    if (err) {
-      console.error('[shutdown] Server close error:', err.message);
-      process.exit(1);
-    }
-    console.log('[shutdown] Server closed. Goodbye. 👋');
-    process.exit(0);
+    // Signal PM2 that the app is ready (wait_ready: true)
+    if (process.send) process.send('ready');
   });
 
-  // Force shutdown after 10s if connections are hanging
-  setTimeout(() => {
-    console.error('[shutdown] Forced exit after 10s timeout.');
-    process.exit(1);
-  }, 10_000).unref();
+  // ── Graceful Shutdown ───────────────────────────────────────
+  let shuttingDown = false;
+
+  function gracefulShutdown(signal) {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    console.log(`\n[${signal}] Graceful shutdown initiated…`);
+
+    server.close(err => {
+      if (err) {
+        console.error('[shutdown] Server close error:', err.message);
+        process.exit(1);
+      }
+      console.log('[shutdown] Server closed. Goodbye. \uD83D\uDC4B');
+      process.exit(0);
+    });
+
+    // Force shutdown after 10s if connections are hanging
+    setTimeout(() => {
+      console.error('[shutdown] Forced exit after 10s timeout.');
+      process.exit(1);
+    }, 10_000).unref();
+  }
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
+
+  // Catch unhandled promise rejections
+  process.on('unhandledRejection', (reason) => {
+    console.error('[unhandledRejection]', reason);
+  });
+
+  process.on('uncaughtException', err => {
+    console.error('[uncaughtException]', err.message);
+    console.error(err.stack);
+    gracefulShutdown('uncaughtException');
+  });
 }
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
-
-// Catch unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('[unhandledRejection]', reason);
-  // Don't crash — just log
-});
-
-process.on('uncaughtException', err => {
-  console.error('[uncaughtException]', err.message);
-  console.error(err.stack);
-  gracefulShutdown('uncaughtException');
-});
+// ── Export for Vercel / serverless environments ───────────────
+// Vercel calls this as a request handler instead of app.listen()
+module.exports = app;

@@ -1,0 +1,34 @@
+{
+  "version": 2,
+  "buildCommand": "cd backend && npm install",
+  "installCommand": "cd backend && npm install",
+  "builds": [
+    {
+      "src": "backend/server.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "frontend/**",
+          "backend/**"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/server.js"
+    },
+    {
+      "src": "/(.*\\.(css|js|svg|json|ico|png|jpg|jpeg|webp|woff|woff2|ttf))",
+      "dest": "frontend/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "backend/server.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
