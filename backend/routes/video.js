@@ -13,8 +13,8 @@ const os            = require('os');
 let cookiesFilePath = null;
 if (process.env.YOUTUBE_COOKIES) {
   try {
-    // Cloud providers often escape newlines. Un-escape them.
-    let rawCookies = process.env.YOUTUBE_COOKIES.replace(/\\n/g, '\n').trim();
+    // Cloud providers often escape newlines. Un-escape them and strip accidental quotes.
+    let rawCookies = process.env.YOUTUBE_COOKIES.replace(/^['"]|['"]$/g, '').replace(/\\n/g, '\n').trim();
     
     // Auto-inject Netscape header if the user forgot it
     if (!rawCookies.startsWith('# Netscape HTTP Cookie File')) {
@@ -275,7 +275,7 @@ router.get('/info', async (req, res) => {
       errMsg = 'YouTube is blocking the server\'s IP. To fix this in production, you must set the YOUTUBE_COOKIES environment variable. See README for instructions.';
     }
 
-    res.status(500).json({ error: errMsg });
+    res.status(500).json({ error: errMsg, raw: err.message });
   }
 });
 
