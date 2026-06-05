@@ -13,8 +13,10 @@ const os            = require('os');
 let cookiesFilePath = null;
 if (process.env.YOUTUBE_COOKIES) {
   try {
+    // Cloud providers often escape newlines. Un-escape them so yt-dlp can read the file.
+    const rawCookies = process.env.YOUTUBE_COOKIES.replace(/\\n/g, '\n');
     cookiesFilePath = path.join(os.tmpdir(), 'youtube-cookies.txt');
-    fs.writeFileSync(cookiesFilePath, process.env.YOUTUBE_COOKIES, { encoding: 'utf-8' });
+    fs.writeFileSync(cookiesFilePath, rawCookies, { encoding: 'utf-8' });
     console.log(`[setup] Wrote YOUTUBE_COOKIES to ${cookiesFilePath}`);
   } catch (err) {
     console.error(`[setup] Failed to write YOUTUBE_COOKIES: ${err.message}`);
@@ -226,13 +228,18 @@ router.get('/info', async (req, res) => {
       '--no-playlist', 
       '--no-warnings', 
       '--force-ipv4',
-      '--geo-bypass',
-      '--impersonate', 'chrome',
-      '--extractor-args', 'youtube:player_client=android_creator,tv,web'
+      '--geo-bypass'
     ];
+    
     if (cookiesFilePath) {
+      // If we have cookies, act like a normal web client to match the cookies
       args.push('--cookies', cookiesFilePath);
+    } else {
+      // If no cookies, try aggressive bot-bypass strategies
+      args.push('--impersonate', 'chrome');
+      args.push('--extractor-args', 'youtube:player_client=android_creator,tv,web');
     }
+    
     args.push(cleanUrl);
 
     const raw  = await execYtDlp(args);
@@ -305,12 +312,14 @@ router.get('/download', (req, res) => {
     '--no-warnings', 
     '--force-ipv4',
     '--geo-bypass',
-    '--impersonate', 'chrome',
-    '--extractor-args', 'youtube:player_client=android_creator,tv,web',
     '-f', format
   ];
+
   if (cookiesFilePath) {
     args.push('--cookies', cookiesFilePath);
+  } else {
+    args.push('--impersonate', 'chrome');
+    args.push('--extractor-args', 'youtube:player_client=android_creator,tv,web');
   }
 
   if (isAudio) {
