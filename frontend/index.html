@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5" />
+  <title>YTGrab – Download YouTube Videos Free | HD & MP3</title>
+  <meta name="description" content="Download YouTube videos in HD quality – 4K, 1080p, 720p, 480p, or extract MP3 audio at 320kbps. Free, fast, no registration required." />
+  <meta name="keywords" content="youtube downloader, download youtube video, youtube to mp3, yt downloader, free video downloader" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="YTGrab – YouTube Video Downloader" />
+  <meta property="og:description" content="Download YouTube videos in HD quality. Free, fast, no registration." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#ff4040" />
+
+  <!-- Favicon & Manifest -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header" id="header">
+    <nav class="nav container">
+      <a href="/" class="nav__logo" aria-label="YTGrab Home">
+        <span class="logo-icon"><i class="fa-brands fa-youtube"></i></span>
+        <span class="logo-text">YT<span class="logo-accent">Grab</span></span>
+      </a>
+
+      <ul class="nav__links" id="navLinks">
+        <li><a href="#how-it-works" class="nav__link">How it works</a></li>
+        <li><a href="#features" class="nav__link">Features</a></li>
+        <li><a href="#faq" class="nav__link">FAQ</a></li>
+      </ul>
+
+      <div class="nav__actions">
+        <!-- Theme toggle -->
+        <button class="btn-theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
+          <i class="fa-solid fa-moon" id="themeIcon"></i>
+        </button>
+        <!-- Download History -->
+        <button class="btn-history" id="historyBtn" aria-label="Download history" title="Download history">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span class="history-badge" id="historyBadge" style="display:none;"></span>
+        </button>
+        <!-- Mobile menu -->
+        <button class="nav__toggler" id="navToggler" aria-label="Toggle navigation menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ===== HISTORY PANEL ===== -->
+  <div class="history-backdrop" id="historyBackdrop" aria-hidden="true"></div>
+  <aside class="history-panel" id="historyPanel" aria-label="Download history" aria-hidden="true">
+    <div class="history-panel__header">
+      <h2 class="history-panel__title"><i class="fa-solid fa-clock-rotate-left"></i> Download History</h2>
+      <button class="history-panel__close" id="historyClose" aria-label="Close history">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div class="history-panel__body" id="historyBody">
+      <!-- Populated by JS -->
+    </div>
+    <div class="history-panel__footer">
+      <button class="btn-clear-history" id="clearHistoryBtn">
+        <i class="fa-solid fa-trash"></i> Clear All History
+      </button>
+    </div>
+  </aside>
+
+  <main>
+    <!-- ===== HERO SECTION ===== -->
+    <section class="hero" id="hero">
+      <div class="hero__bg-orbs" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
+      </div>
+
+      <!-- Particle grid -->
+      <div class="hero__grid" aria-hidden="true"></div>
+
+      <div class="container">
+        <div class="hero__content">
+
+          <div class="hero__badge">
+            <span class="hero__badge-dot"></span>
+            <i class="fa-solid fa-bolt"></i>
+            <span>Fast &amp; Free YouTube Downloader</span>
+          </div>
+
+          <h1 class="hero__title">
+            Download YouTube Videos<br />
+            <span class="hero__title-gradient">in Seconds</span>
+          </h1>
+
+          <p class="hero__subtitle">
+            Download in 4K, 1080p, 720p, or extract high-quality MP3 audio.
+            No registration, no limits, no watermarks — completely free.
+          </p>
+
+          <!-- ===== SEARCH FORM ===== -->
+          <form class="search-form" id="searchForm" role="search" novalidate>
+            <div class="search-input-wrap" id="searchInputWrap">
+              <span class="search-icon" aria-hidden="true">
+                <i class="fa-brands fa-youtube"></i>
+              </span>
+              <input
+                type="url"
+                id="videoUrl"
+                class="search-input"
+                placeholder="Paste YouTube URL here… https://youtube.com/watch?v=…"
+                autocomplete="off"
+                spellcheck="false"
+                aria-label="YouTube video URL"
+              />
+              <button type="button" class="search-paste-btn" id="pasteBtn" aria-label="Paste from clipboard" title="Paste from clipboard">
+                <i class="fa-solid fa-clipboard"></i>
+              </button>
+              <button type="button" class="search-clear" id="clearBtn" aria-label="Clear input" style="display:none;">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <!-- Clipboard suggestion -->
+            <div class="clipboard-hint" id="clipboardHint" style="display:none;" role="status">
+              <i class="fa-solid fa-clipboard-check"></i>
+              <span>YouTube URL detected in clipboard — </span>
+              <button type="button" id="clipboardPasteBtn" class="clipboard-hint__btn">Paste it</button>
+            </div>
+
+            <button type="submit" class="btn-download-main" id="fetchBtn">
+              <span class="btn-text">
+                <i class="fa-solid fa-magnifying-glass"></i>&nbsp; Fetch Video
+              </span>
+              <span class="btn-loading" style="display:none;">
+                <span class="btn-spinner"></span>&nbsp; Fetching info…
+              </span>
+            </button>
+          </form>
+
+          <!-- ===== ERROR BANNER ===== -->
+          <div class="error-banner" id="errorBanner" role="alert" aria-live="polite" style="display:none;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="errorMsg">Something went wrong.</span>
+            <button type="button" class="error-retry" id="retryBtn" style="display:none;">
+              <i class="fa-solid fa-rotate-right"></i> Retry
+            </button>
+          </div>
+
+          <!-- ===== SHIMMER SKELETON ===== -->
+          <div class="skeleton-card" id="skeletonCard" style="display:none;" aria-hidden="true">
+            <div class="skeleton-thumb"></div>
+            <div class="skeleton-info">
+              <div class="skeleton-line skeleton-line--title"></div>
+              <div class="skeleton-line skeleton-line--meta"></div>
+              <div class="skeleton-line skeleton-line--short"></div>
+              <div class="skeleton-formats">
+                <div class="skeleton-format-row"></div>
+                <div class="skeleton-format-row"></div>
+                <div class="skeleton-format-row"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== RESULT CARD ===== -->
+          <div class="result-card" id="resultCard" style="display:none;" aria-live="polite">
+            <div class="result-card__inner">
+              <!-- Thumbnail -->
+              <div class="result-thumb-wrap">
+                <img id="videoThumb" class="result-thumb" alt="Video thumbnail" loading="lazy" />
+                <span class="result-duration" id="videoDuration" aria-label="Duration"></span>
+                <div class="result-thumb-overlay">
+                  <i class="fa-solid fa-play"></i>
+                </div>
+              </div>
+
+              <!-- Info & Formats -->
+              <div class="result-info">
+                <div class="result-title-row">
+                  <h2 class="result-title" id="videoTitle"></h2>
+                  <button class="btn-copy-link" id="copyLinkBtn" aria-label="Copy video URL" title="Copy video URL">
+                    <i class="fa-solid fa-link"></i>
+                  </button>
+                </div>
+
+                <div class="result-meta">
+                  <span class="meta-item">
+                    <i class="fa-solid fa-user-tie" aria-hidden="true"></i>
+                    <span id="channelName"></span>
+                  </span>
+                  <span class="meta-sep" aria-hidden="true">·</span>
+                  <span class="meta-item" id="viewCountWrap">
+                    <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                    <span id="viewCount"></span>
+                  </span>
+                  <span class="meta-sep" aria-hidden="true">·</span>
+                  <span class="meta-item" id="uploadDateWrap">
+                    <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                    <span id="uploadDate"></span>
+                  </span>
+                </div>
+
+                <p class="formats-heading">
+                  <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+                  Choose Format &amp; Quality
+                </p>
+
+                <div class="formats-grid" id="formatsGrid" role="list"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== STATS ===== -->
+          <div class="hero__stats" aria-label="Platform statistics">
+            <div class="stat">
+              <span class="stat-num" data-count="10">0</span><span class="stat-num">M+</span>
+              <span class="stat-label">Downloads</span>
+            </div>
+            <div class="stat-divider" aria-hidden="true"></div>
+            <div class="stat">
+              <span class="stat-num">4K</span>
+              <span class="stat-label">Max Quality</span>
+            </div>
+            <div class="stat-divider" aria-hidden="true"></div>
+            <div class="stat">
+              <span class="stat-num">100%</span>
+              <span class="stat-label">Free Forever</span>
+            </div>
+            <div class="stat-divider" aria-hidden="true"></div>
+            <div class="stat">
+              <span class="stat-num">320</span><span class="stat-num">kbps</span>
+              <span class="stat-label">Max Audio</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="section section--howto" id="how-it-works">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Simple Process</span>
+          <h2 class="section-title">How It Works</h2>
+          <p class="section-subtitle">Download any YouTube video in 3 easy steps</p>
+        </div>
+
+        <div class="steps-grid">
+          <div class="step-card" data-step="1">
+            <div class="step-number">Step 01</div>
+            <div class="step-icon-wrap">
+              <div class="step-icon"><i class="fa-solid fa-link" aria-hidden="true"></i></div>
+            </div>
+            <h3 class="step-title">Paste URL</h3>
+            <p class="step-desc">Copy the YouTube video URL from your browser and paste it into the search box above.</p>
+          </div>
+
+          <div class="step-connector" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></div>
+
+          <div class="step-card" data-step="2">
+            <div class="step-number">Step 02</div>
+            <div class="step-icon-wrap">
+              <div class="step-icon"><i class="fa-solid fa-sliders" aria-hidden="true"></i></div>
+            </div>
+            <h3 class="step-title">Choose Quality</h3>
+            <p class="step-desc">Select your preferred video quality (4K, 1080p, etc.) or choose MP3 audio at up to 320kbps.</p>
+          </div>
+
+          <div class="step-connector" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></div>
+
+          <div class="step-card" data-step="3">
+            <div class="step-number">Step 03</div>
+            <div class="step-icon-wrap">
+              <div class="step-icon"><i class="fa-solid fa-download" aria-hidden="true"></i></div>
+            </div>
+            <h3 class="step-title">Download</h3>
+            <p class="step-desc">Click the download button and your file streams directly to your device — no temp files stored.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FEATURES ===== -->
+    <section class="section section--features" id="features">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Why YTGrab?</span>
+          <h2 class="section-title">Built for Speed &amp; Simplicity</h2>
+          <p class="section-subtitle">Everything you need, nothing you don't</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card" data-reveal>
+            <div class="feature-icon feature-icon--red" aria-hidden="true"><i class="fa-solid fa-bolt-lightning"></i></div>
+            <h3 class="feature-title">Lightning Fast</h3>
+            <p class="feature-desc">Downloads start instantly. Files are streamed directly from YouTube — no waiting, no queues.</p>
+          </div>
+          <div class="feature-card" data-reveal>
+            <div class="feature-icon feature-icon--purple" aria-hidden="true"><i class="fa-solid fa-film"></i></div>
+            <h3 class="feature-title">HD &amp; 4K Quality</h3>
+            <p class="feature-desc">Download in the highest available quality, up to 4K Ultra HD, with no compression or quality loss.</p>
+          </div>
+          <div class="feature-card" data-reveal>
+            <div class="feature-icon feature-icon--blue" aria-hidden="true"><i class="fa-solid fa-music"></i></div>
+            <h3 class="feature-title">320kbps Audio</h3>
+            <p class="feature-desc">Extract high-quality MP3 audio at 128, 192, or 320kbps — perfect for music and podcasts.</p>
+          </div>
+          <div class="feature-card" data-reveal>
+            <div class="feature-icon feature-icon--green" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></div>
+            <h3 class="feature-title">Safe &amp; Private</h3>
+            <p class="feature-desc">We don't store your URLs, downloads, or any personal data. Your privacy is completely protected.</p>
+          </div>
+          <div class="feature-card" data-reveal>
+            <div class="feature-icon feature-icon--orange" aria-hidden="true"><i class="fa-solid fa-mobile-screen"></i></div>
+            <h3 class="feature-title">Works Everywhere</h3>
+            <p class="feature-desc">Fully responsive — works on desktops, tablets, and smartphones without any app or extension needed.</p>
+          </div>
+          <div class="feature-card" data-reveal>
+            <div class="feature-icon feature-icon--pink" aria-hidden="true"><i class="fa-solid fa-infinity"></i></div>
+            <h3 class="feature-title">No Limits</h3>
+            <p class="feature-desc">No daily download limits, no account required, and completely free to use. Download Shorts too.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FAQ ===== -->
+    <section class="section section--faq" id="faq">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Help Center</span>
+          <h2 class="section-title">Frequently Asked Questions</h2>
+        </div>
+
+        <div class="faq-list" id="faqList">
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false" id="faq1-btn" aria-controls="faq1">
+              <span>Is it free to download YouTube videos?</span>
+              <span class="faq-icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+            </button>
+            <div class="faq-answer" id="faq1" role="region" aria-labelledby="faq1-btn">
+              <p>Yes! YTGrab is completely free to use. There are no hidden fees, subscriptions, or download limits of any kind.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false" id="faq2-btn" aria-controls="faq2">
+              <span>What video qualities can I download?</span>
+              <span class="faq-icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+            </button>
+            <div class="faq-answer" id="faq2" role="region" aria-labelledby="faq2-btn">
+              <p>We support all available qualities from 144p up to 4K (2160p), depending on what the video offers. You can also extract audio-only as MP3 at 128, 192, or 320kbps.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false" id="faq3-btn" aria-controls="faq3">
+              <span>Do I need to install anything?</span>
+              <span class="faq-icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+            </button>
+            <div class="faq-answer" id="faq3" role="region" aria-labelledby="faq3-btn">
+              <p>No installation is required on your end. Just paste the URL and download. The server handles everything else.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false" id="faq4-btn" aria-controls="faq4">
+              <span>Can I download YouTube Shorts?</span>
+              <span class="faq-icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+            </button>
+            <div class="faq-answer" id="faq4" role="region" aria-labelledby="faq4-btn">
+              <p>Yes! YouTube Shorts are fully supported. Paste any Shorts URL (youtube.com/shorts/…) and download as usual.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false" id="faq5-btn" aria-controls="faq5">
+              <span>Why does 1080p or 4K need FFmpeg?</span>
+              <span class="faq-icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+            </button>
+            <div class="faq-answer" id="faq5" role="region" aria-labelledby="faq5-btn">
+              <p>YouTube streams video and audio separately for qualities above 720p. FFmpeg merges them into a single MP4 file on the server side. Make sure FFmpeg is installed and on your system PATH.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false" id="faq6-btn" aria-controls="faq6">
+              <span>Why can't I download private or age-restricted videos?</span>
+              <span class="faq-icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+            </button>
+            <div class="faq-answer" id="faq6" role="region" aria-labelledby="faq6-btn">
+              <p>Age-restricted and private videos require account authentication to access. Due to privacy constraints, we only support publicly available videos.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <a href="/" class="nav__logo" aria-label="YTGrab Home">
+            <span class="logo-icon"><i class="fa-brands fa-youtube"></i></span>
+            <span class="logo-text">YT<span class="logo-accent">Grab</span></span>
+          </a>
+          <p class="footer__tagline">The fastest way to download YouTube videos — free, forever.</p>
+        </div>
+        <div class="footer__links-group">
+          <div class="footer__col">
+            <h4 class="footer__col-title">Product</h4>
+            <a href="#how-it-works" class="footer__link">How it works</a>
+            <a href="#features" class="footer__link">Features</a>
+            <a href="#faq" class="footer__link">FAQ</a>
+          </div>
+          <div class="footer__col">
+            <h4 class="footer__col-title">Legal</h4>
+            <a href="#" class="footer__link">Privacy Policy</a>
+            <a href="#" class="footer__link">Terms of Service</a>
+            <a href="#" class="footer__link">DMCA</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copy">&copy; <span id="footerYear"></span> YTGrab. For personal use only. Respect copyright laws.</p>
+        <p class="footer__disclaimer">This site is not affiliated with YouTube or Google LLC.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== TOAST ===== -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <i class="fa-solid fa-circle-check toast-icon" id="toastIcon" aria-hidden="true"></i>
+    <span class="toast-msg" id="toastMsg"></span>
+  </div>
+
+  <!-- ===== DOWNLOAD OVERLAY ===== -->
+  <div class="download-overlay" id="downloadOverlay" style="display:none;" aria-live="assertive" role="status">
+    <div class="download-overlay__inner">
+      <div class="download-spinner-wrap" aria-hidden="true">
+        <svg class="download-spinner-svg" viewBox="0 0 50 50">
+          <circle class="spinner-bg" cx="25" cy="25" r="20" fill="none" stroke-width="4"/>
+          <circle class="spinner-fg" cx="25" cy="25" r="20" fill="none" stroke-width="4" stroke-dasharray="120" stroke-dashoffset="100"/>
+        </svg>
+        <i class="fa-solid fa-download download-spinner-icon"></i>
+      </div>
+      <p class="download-overlay__title" id="downloadOverlayTitle">Preparing Your Download…</p>
+      <p class="download-overlay__subtitle" id="downloadOverlaySub">Large files may take a moment to start. Don't close this tab.</p>
+      <div class="download-progress-bar-wrap">
+        <div class="download-progress-bar" id="downloadProgressBar"></div>
+      </div>
+      <button class="btn-cancel-download" id="cancelDownloadBtn" type="button">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== SCROLL TO TOP ===== -->
+  <button class="scroll-top-btn" id="scrollTopBtn" aria-label="Scroll to top" style="display:none;">
+    <i class="fa-solid fa-chevron-up"></i>
+  </button>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

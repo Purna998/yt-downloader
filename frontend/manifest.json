@@ -1,0 +1,17 @@
+{
+  "name": "YTGrab",
+  "short_name": "YTGrab",
+  "description": "Download YouTube videos in HD – free, fast, no registration.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080810",
+  "theme_color": "#ff4040",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
