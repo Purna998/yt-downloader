@@ -204,6 +204,7 @@ router.get('/info', async (req, res) => {
       }
     } catch (e) { /* ignore parse errors */ }
 
+  try {
     const raw  = await execYtDlp([
       '--dump-json', 
       '--no-playlist', 
