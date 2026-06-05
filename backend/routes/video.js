@@ -208,7 +208,7 @@ router.get('/info', async (req, res) => {
       '--dump-json', 
       '--no-playlist', 
       '--no-warnings', 
-      '--extractor-args', 'youtube:player_client=ios,android,web',
+      '--force-ipv4',
       cleanUrl
     ]);
     const data = JSON.parse(raw);
@@ -271,7 +271,7 @@ router.get('/download', (req, res) => {
   const args = [
     '--no-playlist', 
     '--no-warnings', 
-    '--extractor-args', 'youtube:player_client=ios,android,web',
+    '--force-ipv4',
     '-f', format
   ];
 
