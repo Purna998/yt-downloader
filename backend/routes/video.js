@@ -13,8 +13,15 @@ const os            = require('os');
 let cookiesFilePath = null;
 if (process.env.YOUTUBE_COOKIES) {
   try {
-    // Cloud providers often escape newlines. Un-escape them so yt-dlp can read the file.
-    const rawCookies = process.env.YOUTUBE_COOKIES.replace(/\\n/g, '\n');
+    // Cloud providers often escape newlines. Un-escape them.
+    let rawCookies = process.env.YOUTUBE_COOKIES.replace(/\\n/g, '\n').trim();
+    
+    // Auto-inject Netscape header if the user forgot it
+    if (!rawCookies.startsWith('# Netscape HTTP Cookie File')) {
+      rawCookies = '# Netscape HTTP Cookie File\n\n' + rawCookies;
+    }
+    rawCookies += '\n'; // Must end with a newline
+
     cookiesFilePath = path.join(os.tmpdir(), 'youtube-cookies.txt');
     fs.writeFileSync(cookiesFilePath, rawCookies, { encoding: 'utf-8' });
     console.log(`[setup] Wrote YOUTUBE_COOKIES to ${cookiesFilePath}`);
@@ -227,7 +234,6 @@ router.get('/info', async (req, res) => {
       '--dump-json', 
       '--no-playlist', 
       '--no-warnings', 
-      '--force-ipv4',
       '--geo-bypass'
     ];
     
@@ -310,7 +316,6 @@ router.get('/download', (req, res) => {
   const args = [
     '--no-playlist', 
     '--no-warnings', 
-    '--force-ipv4',
     '--geo-bypass',
     '-f', format
   ];
