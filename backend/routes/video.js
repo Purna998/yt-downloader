@@ -194,7 +194,13 @@ router.get('/info', async (req, res) => {
   }
 
   try {
-    const raw  = await execYtDlp(['--dump-json', '--no-playlist', '--no-warnings', url]);
+    const raw  = await execYtDlp([
+      '--dump-json', 
+      '--no-playlist', 
+      '--no-warnings', 
+      '--extractor-args', 'youtube:player_client=ios,android,web',
+      url
+    ]);
     const data = JSON.parse(raw);
 
     res.json({
@@ -241,7 +247,12 @@ router.get('/download', (req, res) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Cache-Control', 'no-store');
 
-  const args = ['--no-playlist', '--no-warnings', '-f', format];
+  const args = [
+    '--no-playlist', 
+    '--no-warnings', 
+    '--extractor-args', 'youtube:player_client=ios,android,web',
+    '-f', format
+  ];
 
   if (isAudio) {
     const quality = ['128', '192', '256', '320'].includes(audioBitrate) ? audioBitrate : '192';
