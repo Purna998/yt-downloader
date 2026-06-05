@@ -5,6 +5,22 @@ const router        = express.Router();
 const { execFile, spawn, execFileSync } = require('child_process');
 const fs            = require('fs');
 const path          = require('path');
+const os            = require('os');
+
+// ─────────────────────────────────────────────────────────────
+// YouTube Cookies Setup (Datacenter Block Bypass)
+// ─────────────────────────────────────────────────────────────
+let cookiesFilePath = null;
+if (process.env.YOUTUBE_COOKIES) {
+  try {
+    cookiesFilePath = path.join(os.tmpdir(), 'youtube-cookies.txt');
+    fs.writeFileSync(cookiesFilePath, process.env.YOUTUBE_COOKIES, { encoding: 'utf-8' });
+    console.log(`[setup] Wrote YOUTUBE_COOKIES to ${cookiesFilePath}`);
+  } catch (err) {
+    console.error(`[setup] Failed to write YOUTUBE_COOKIES: ${err.message}`);
+    cookiesFilePath = null;
+  }
+}
 
 // ─────────────────────────────────────────────────────────────
 // Resolve yt-dlp executable path
@@ -205,13 +221,21 @@ router.get('/info', async (req, res) => {
     } catch (e) { /* ignore parse errors */ }
 
   try {
-    const raw  = await execYtDlp([
+    const args = [
       '--dump-json', 
       '--no-playlist', 
       '--no-warnings', 
       '--force-ipv4',
-      cleanUrl
-    ]);
+      '--geo-bypass',
+      '--impersonate', 'chrome',
+      '--extractor-args', 'youtube:player_client=android_creator,tv,web'
+    ];
+    if (cookiesFilePath) {
+      args.push('--cookies', cookiesFilePath);
+    }
+    args.push(cleanUrl);
+
+    const raw  = await execYtDlp(args);
     const data = JSON.parse(raw);
 
     res.json({
@@ -231,7 +255,14 @@ router.get('/info', async (req, res) => {
     });
   } catch (err) {
     console.error('[/api/info error]', err.message);
-    res.status(500).json({ error: classifyError(err.message) });
+    let errMsg = classifyError(err.message);
+    
+    // Explicit warning for datacenter blocks
+    if (errMsg.includes('age-restricted or requires sign-in') && !cookiesFilePath) {
+      errMsg = 'YouTube is blocking the server\'s IP. To fix this in production, you must set the YOUTUBE_COOKIES environment variable. See README for instructions.';
+    }
+
+    res.status(500).json({ error: errMsg });
   }
 });
 
@@ -273,8 +304,14 @@ router.get('/download', (req, res) => {
     '--no-playlist', 
     '--no-warnings', 
     '--force-ipv4',
+    '--geo-bypass',
+    '--impersonate', 'chrome',
+    '--extractor-args', 'youtube:player_client=android_creator,tv,web',
     '-f', format
   ];
+  if (cookiesFilePath) {
+    args.push('--cookies', cookiesFilePath);
+  }
 
   if (isAudio) {
     const quality = ['128', '192', '256', '320'].includes(audioBitrate) ? audioBitrate : '192';
