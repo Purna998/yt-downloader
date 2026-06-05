@@ -7,13 +7,21 @@
 # ── Stage 1: base image with Node + ffmpeg + yt-dlp binary ──────
 FROM node:22-slim AS base
 
-# Install ffmpeg + curl only (no python3-pip needed).
-# yt-dlp's prebuilt binary bundles its own Python interpreter,
-# so we download it directly from GitHub releases — this also
-# avoids the Debian PEP 668 "externally managed environment" error.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      ffmpeg curl ca-certificates \
-    && curl -L "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp" \
+# Install ffmpeg + curl only (no python3-pip / system Python needed).
+# yt-dlp_linux / yt-dlp_linux_aarch64 are fully standalone binaries
+# that bundle their own Python — no shebang dependency on system python3.
+# NOTE: the bare "yt-dlp" release is a Python zipapp; always use yt-dlp_linux.
+RUN ARCH="$(uname -m)" \
+    && if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
+         YTDLP_BIN="yt-dlp_linux_aarch64"; \
+       elif [ "$ARCH" = "armv7l" ]; then \
+         YTDLP_BIN="yt-dlp_linux_armv7l"; \
+       else \
+         YTDLP_BIN="yt-dlp_linux"; \
+       fi \
+    && apt-get update && apt-get install -y --no-install-recommends \
+         ffmpeg curl ca-certificates \
+    && curl -L "https://github.com/yt-dlp/yt-dlp/releases/latest/download/${YTDLP_BIN}" \
        -o /usr/local/bin/yt-dlp \
     && chmod a+rx /usr/local/bin/yt-dlp \
     && yt-dlp --version \
