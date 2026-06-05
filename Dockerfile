@@ -21,7 +21,7 @@ RUN ARCH="$(uname -m)" \
        fi \
     && apt-get update && apt-get install -y --no-install-recommends \
          ffmpeg curl ca-certificates \
-    && curl -L "https://github.com/yt-dlp/yt-dlp/releases/latest/download/${YTDLP_BIN}" \
+    && curl -L "https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/latest/download/${YTDLP_BIN}" \
        -o /usr/local/bin/yt-dlp \
     && chmod a+rx /usr/local/bin/yt-dlp \
     && yt-dlp --version \

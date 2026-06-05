@@ -193,13 +193,23 @@ router.get('/info', async (req, res) => {
     return res.status(400).json({ error: 'Please enter a valid YouTube URL (youtube.com or youtu.be).' });
   }
 
-  try {
+    // Sanitize URL to prevent playlist/mix bot-triggers
+    let cleanUrl = url;
+    try {
+      const parsed = new URL(url);
+      if (parsed.searchParams.has('v')) {
+        cleanUrl = `${parsed.origin}${parsed.pathname}?v=${parsed.searchParams.get('v')}`;
+      } else {
+        cleanUrl = `${parsed.origin}${parsed.pathname}`;
+      }
+    } catch (e) { /* ignore parse errors */ }
+
     const raw  = await execYtDlp([
       '--dump-json', 
       '--no-playlist', 
       '--no-warnings', 
       '--extractor-args', 'youtube:player_client=ios,android,web',
-      url
+      cleanUrl
     ]);
     const data = JSON.parse(raw);
 
@@ -241,6 +251,17 @@ router.get('/download', (req, res) => {
   const filename = `${safeTitle}.${ext || 'mp4'}`;
   const isAudio  = ext === 'mp3';
 
+  // Sanitize URL to prevent playlist/mix bot-triggers
+  let cleanUrl = url;
+  try {
+    const parsed = new URL(url);
+    if (parsed.searchParams.has('v')) {
+      cleanUrl = `${parsed.origin}${parsed.pathname}?v=${parsed.searchParams.get('v')}`;
+    } else {
+      cleanUrl = `${parsed.origin}${parsed.pathname}`;
+    }
+  } catch (e) { /* ignore parse errors */ }
+
   // Set response headers
   res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`);
   res.setHeader('Content-Type', isAudio ? 'audio/mpeg' : 'video/mp4');
@@ -261,10 +282,10 @@ router.get('/download', (req, res) => {
       '--audio-format', 'mp3',
       '--audio-quality', `${quality}k`,
       '-o', '-',
-      url,
+      cleanUrl,
     );
   } else {
-    args.push('--merge-output-format', 'mp4', '-o', '-', url);
+    args.push('--merge-output-format', 'mp4', '-o', '-', cleanUrl);
   }
 
   console.log(`[download] ${isAudio ? '🎵' : '🎬'} ${safeTitle}.${ext} (${format})`);
